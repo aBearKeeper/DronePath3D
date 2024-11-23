@@ -57,4 +57,3 @@ void UFileDialogHelper::SelectAndCopyFile()
         }
     }
 }
-
