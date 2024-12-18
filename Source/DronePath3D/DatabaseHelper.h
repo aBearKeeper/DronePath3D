@@ -10,6 +10,7 @@
 #include "cppconn/prepared_statement.h"
 #include "cppconn/driver.h"
 #include "cppconn/exception.h"
+#include "SceneInfo.h"
 
 #include "DatabaseHelper.generated.h"
 
@@ -27,7 +28,15 @@ public:
 	static UDatabaseHelper* GetSingleton();
 
 	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
-	void execute(FString sql);
+	bool execute(FString sql);
+
+	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
+	bool AddNewScene(FString FilePath);
+
+	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
+	bool DeleteScene(int32 SceneID);
+
+	TArray<USceneInfo*> GetAllScenes();
 
 private:
 

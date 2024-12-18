@@ -8,10 +8,10 @@
 #include "Misc/Paths.h"
 
 
-void UFileDialogHelper::SelectAndCopyFile()
+FString UFileDialogHelper::SelectAndCopyPointCloudFile()
 {
     TArray<FString> AbsoluteOpenFileNames; // 获取的文件绝对路径
-    FString ExtensionStr = TEXT("*.*");   // 文件类型
+    FString ExtensionStr = TEXT("*.las");   // 文件类型
 
     // 打开文件对话框
     IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
@@ -25,10 +25,10 @@ void UFileDialogHelper::SelectAndCopyFile()
         AbsoluteOpenFileNames)))
     {
         UE_LOG(LogTemp, Warning, TEXT("No file selected or operation canceled."));
-        return;
+        return ("");
     }
     // 定义目标文件夹路径（相对于项目目录）
-    FString DestinationFolder = FPaths::ProjectDir() + TEXT("Data/Scenes/");
+    FString DestinationFolder = FPaths::ProjectDir() + TEXT("Data/PointClouds/");
     IFileManager& FileManager = IFileManager::Get();
 
     // 确保目标文件夹存在
@@ -50,10 +50,12 @@ void UFileDialogHelper::SelectAndCopyFile()
         if (FileManager.Copy(*DestinationPath, *Filename) == ECopyResult::COPY_OK)
         {
             UE_LOG(LogTemp, Log, TEXT("Successfully copied: %s to %s"), *Filename, *DestinationPath);
+            return BaseFileName;
         }
         else
         {
             UE_LOG(LogTemp, Error, TEXT("Failed to copy: %s"), *Filename);
         }
     }
+    return "";
 }
