@@ -5,7 +5,7 @@
 
 #define HOSTNAME "tcp://localhost:3306"
 #define USERNAME "root"
-#define PASSWORD "xzf"
+#define PASSWORD "WXY@030531wxy"
 
 UDatabaseHelper* UDatabaseHelper::GetSingleton()
 {
