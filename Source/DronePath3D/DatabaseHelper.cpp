@@ -44,16 +44,32 @@ bool UDatabaseHelper::AddNewScene(FString FilePath)
         std::unique_ptr<sql::Statement> stmt(con->createStatement());
         stmt->execute("USE DronePath3D");
 
-        // 创建插入语句
-        std::string query = "INSERT INTO Scenes (Name, Description, PointCloudDataPath) VALUES (?, ?, ?)";
+        // 获取文件名作为 Name
+        std::string sceneName = TCHAR_TO_UTF8(*FPaths::GetBaseFilename(FilePath));
 
-        // 使用预处理语句
+        // 1. 检查是否已经存在相同的 Name
+        std::string checkQuery = "SELECT COUNT(*) FROM Scenes WHERE Name = ?";
+        std::unique_ptr<sql::PreparedStatement> checkStmt(con->prepareStatement(checkQuery));
+        checkStmt->setString(1, sceneName);
+
+        // 执行查询
+        std::unique_ptr<sql::ResultSet> res(checkStmt->executeQuery());
+        res->next();
+
+        // 如果结果是 1，则表示已经存在相同的 Name，返回 false
+        if (res->getInt(1) > 0) {
+            UE_LOG(LogTemp, Warning, TEXT("Scene with name '%s' already exists."), *FString(sceneName.c_str()));
+            return false;
+        }
+
+        // 2. 如果没有重复的 Name，执行插入操作
+        std::string query = "INSERT INTO Scenes (Name, Description, PointCloudDataPath) VALUES (?, ?, ?)";
         std::unique_ptr<sql::PreparedStatement> pstmt(con->prepareStatement(query));
 
         // 设置参数
-        pstmt->setString(1, TCHAR_TO_UTF8(*FPaths::GetBaseFilename(FilePath)));                // 设置 Name
-        pstmt->setString(2, "description");         // 设置 Description
-        pstmt->setString(3, TCHAR_TO_UTF8(*(FPaths::ProjectDir() + TEXT("Data/PointClouds/") + FilePath)));  // 设置 PointCloudDataPath
+        pstmt->setString(1, sceneName); // 设置 Name
+        pstmt->setString(2, "description"); // 设置 Description
+        pstmt->setString(3, TCHAR_TO_UTF8(*(FPaths::ProjectDir() + TEXT("Data/PointClouds/") + FilePath))); // 设置 PointCloudDataPath
 
         // 执行插入
         pstmt->executeUpdate();
