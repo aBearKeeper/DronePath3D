@@ -160,7 +160,6 @@ TArray<USceneInfo*> UDatabaseHelper::GetAllScenes()
 void UDatabaseHelper::Initialize()
 {
     FString Host, User, Pass;
-    
 
     // 从配置文件中读取
     if (GConfig)
@@ -176,17 +175,30 @@ void UDatabaseHelper::Initialize()
     {
         UE_LOG(LogTemp, Error, TEXT("GConfig is not available!"));
     }
-	driver = sql::mysql::get_mysql_driver_instance();
-    std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
-    std::unique_ptr<sql::Statement> stamt(con->createStatement());
-    stamt->execute("CREATE DATABASE IF NOT EXISTS DronePath3D");
-    stamt->execute("USE DronePath3D");
+    try {
+        driver = sql::mysql::get_mysql_driver_instance();
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
+        std::unique_ptr<sql::Statement> stamt(con->createStatement());
+        stamt->execute("CREATE DATABASE IF NOT EXISTS DronePath3D");
+        stamt->execute("USE DronePath3D");
+        stamt->execute("CREATE TABLE IF NOT EXISTS Scenes ("
+            "SceneID INT AUTO_INCREMENT PRIMARY KEY COMMENT '场景唯一标识符',"
+            "Name VARCHAR(255) NOT NULL COMMENT '场景名称',"
+            "Description VARCHAR(500) COMMENT '场景描述',"
+            "PointCloudDataPath VARCHAR(1000) COMMENT '点云数据文件路径'"
+        ") COMMENT = '场景信息表'; ");
+    }
+    catch (const sql::SQLException& e) {
+        UE_LOG(LogTemp, Error, TEXT("SQL Exception: %s"), *FString(e.what()));
+    }
+    catch (const std::exception& e) {
+        UE_LOG(LogTemp, Error, TEXT("Standard Exception: %s"), *FString(e.what()));
+    }
+    catch (...) {
+        UE_LOG(LogTemp, Error, TEXT("SQL execute: Unknown Exception occurred."));
+    }
 }
 
 UDatabaseHelper::UDatabaseHelper() {
 
 }
-
-#undef HOSTNAME
-#undef USERNAME
-#undef PASSWORD
