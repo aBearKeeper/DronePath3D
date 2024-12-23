@@ -22,13 +22,13 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Scene Manager")
 	USceneInfo* CurrentScene;
 
-	UFUNCTION(BlueprintCallable, Category = "SceneManager")
+	UFUNCTION(BlueprintCallable, Category = "Scene Manager")
 	static USceneManager* GetSingleton();
 
-	UFUNCTION(BlueprintCallable, Category = "SceneManager")
+	UFUNCTION(BlueprintCallable, Category = "Scene Manager")
 	void ImportScene(FString FilePath);
 
-	UFUNCTION(BlueprintCallable, Category = "SceneManager")
+	UFUNCTION(BlueprintCallable, Category = "Scene Manager")
 	void DeleteScene(int32 ID);
 
 private:

@@ -21,11 +21,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Scene Info")
 	FString SceneName;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Scene Info")
-	ULidarPointCloud* PointCloudData;
+	UFUNCTION(BlueprintCallable, Category = "Scene Info")
+	ULidarPointCloud* getPointCloudData();
 
 	FString PointCloudDataPath;
 
 private:
 
+	ULidarPointCloud* PointCloudData = nullptr;
 };

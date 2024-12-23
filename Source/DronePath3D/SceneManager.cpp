@@ -3,7 +3,7 @@
 
 #include "SceneManager.h"
 #include "DatabaseHelper.h"
-#include "LidarPointCloud.h"
+// #include "LidarPointCloud.h"
 
 USceneManager* USceneManager::GetSingleton()
 {
@@ -30,7 +30,7 @@ void USceneManager::DeleteScene(int32 ID)
 void USceneManager::Initialize()
 {
 	Scenes = UDatabaseHelper::GetSingleton()->GetAllScenes();
-	for (USceneInfo* Scene : Scenes) {
-		Scene->PointCloudData = ULidarPointCloud::CreateFromFile(Scene->PointCloudDataPath);
-	}
+	//for (USceneInfo* Scene : Scenes) {
+	//	Scene->PointCloudData = ULidarPointCloud::CreateFromFile(Scene->PointCloudDataPath);
+	//}
 }
