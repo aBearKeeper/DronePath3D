@@ -3,10 +3,6 @@
 
 #include "DatabaseHelper.h"
 
-#define HOSTNAME "tcp://localhost:3306"
-#define USERNAME "root"
-#define PASSWORD "WXY@030531wxy"
-
 UDatabaseHelper* UDatabaseHelper::GetSingleton()
 {
 	if (!Singleton) {
@@ -20,7 +16,7 @@ UDatabaseHelper* UDatabaseHelper::GetSingleton()
 bool UDatabaseHelper::execute(FString sql)
 {
     try {
-        std::unique_ptr<sql::Connection> con(driver->connect(HOSTNAME, USERNAME, PASSWORD));
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
         std::unique_ptr<sql::Statement> stamt(con->createStatement());
         stamt->execute("USE DronePath3D");
         stamt->execute(TCHAR_TO_UTF8(*sql));
@@ -42,7 +38,7 @@ bool UDatabaseHelper::AddNewScene(FString FilePath)
 {
     try {
         // 创建数据库连接
-        std::unique_ptr<sql::Connection> con(driver->connect(HOSTNAME, USERNAME, PASSWORD));
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
 
         // 选择数据库
         std::unique_ptr<sql::Statement> stmt(con->createStatement());
@@ -80,7 +76,7 @@ bool UDatabaseHelper::DeleteScene(int32 SceneID)
 {
     try {
         // 创建数据库连接
-        std::unique_ptr<sql::Connection> con(driver->connect(HOSTNAME, USERNAME, PASSWORD));
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
 
         // 选择数据库
         std::unique_ptr<sql::Statement> stmt(con->createStatement());
@@ -124,7 +120,7 @@ TArray<USceneInfo*> UDatabaseHelper::GetAllScenes()
     TArray<USceneInfo*> scenes;
     try {
         // 创建数据库连接
-        std::unique_ptr<sql::Connection> con(driver->connect(HOSTNAME, USERNAME, PASSWORD));
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
 
         // 选择数据库
         std::unique_ptr<sql::Statement> stmt(con->createStatement());
@@ -163,8 +159,25 @@ TArray<USceneInfo*> UDatabaseHelper::GetAllScenes()
 
 void UDatabaseHelper::Initialize()
 {
+    FString Host, User, Pass;
+    
+
+    // 从配置文件中读取
+    if (GConfig)
+    {
+        GConfig->GetString(TEXT("DatabaseSettings"), TEXT("Host"), Host, GGameIni);
+        GConfig->GetString(TEXT("DatabaseSettings"), TEXT("User"), User, GGameIni);
+        GConfig->GetString(TEXT("DatabaseSettings"), TEXT("Password"), Pass, GGameIni);
+        this->HostName = TCHAR_TO_UTF8(*Host);
+        this->UserName = TCHAR_TO_UTF8(*User);
+        this->Password = TCHAR_TO_UTF8(*Pass);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("GConfig is not available!"));
+    }
 	driver = sql::mysql::get_mysql_driver_instance();
-    std::unique_ptr<sql::Connection> con(driver->connect(HOSTNAME, USERNAME, PASSWORD));
+    std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
     std::unique_ptr<sql::Statement> stamt(con->createStatement());
     stamt->execute("CREATE DATABASE IF NOT EXISTS DronePath3D");
     stamt->execute("USE DronePath3D");

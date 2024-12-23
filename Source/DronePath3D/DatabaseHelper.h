@@ -44,6 +44,8 @@ private:
 
 	sql::mysql::MySQL_Driver* driver;
 
+	std::string HostName, UserName, Password;
+
 	void Initialize();
 
 	UDatabaseHelper();
