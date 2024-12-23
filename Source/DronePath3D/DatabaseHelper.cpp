@@ -157,6 +157,59 @@ TArray<USceneInfo*> UDatabaseHelper::GetAllScenes()
     return scenes;
 }
 
+TArray<UDroneInfo*> UDatabaseHelper::GetAllDrones()
+{
+    TArray<UDroneInfo*> drones;
+    try {
+        // 创建数据库连接
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
+
+        // 选择数据库
+        std::unique_ptr<sql::Statement> stmt(con->createStatement());
+        stmt->execute("USE DronePath3D");
+
+        // 执行查询语句
+        std::unique_ptr<sql::ResultSet> res(stmt->executeQuery("SELECT * FROM drones"));
+
+        // 遍历结果集
+        while (res->next()) {
+            // 创建一个新的 UDroneInfo 对象
+            UDroneInfo* droneInfo = NewObject<UDroneInfo>();
+
+            // 获取查询结果并填充 UDroneInfo 对象
+            droneInfo->DroneID = res->getInt("DroneID");
+            droneInfo->SceneID = res->getInt("SceneID");
+            droneInfo->Name = FString(res->getString("Name").c_str());
+            droneInfo->MaxSpeed = res->getDouble("MaxSpeed");
+            droneInfo->MaxHeight = res->getDouble("MaxHeight");
+            droneInfo->Endurance = res->getDouble("Endurance");
+            droneInfo->Weight = res->getDouble("Weight");
+            droneInfo->MaxThrust = res->getDouble("MaxThrust");
+            droneInfo->Diameter = res->getDouble("Diameter");
+            droneInfo->Height = res->getDouble("Height");
+            droneInfo->StartPosition = {
+                res->getDouble("StartX"),
+                res->getDouble("StartY"),
+                res->getDouble("StartZ")
+            };
+
+            // 将 UDroneInfo 对象添加到 TArray
+            drones.Add(droneInfo);
+        }
+    }
+    catch (const sql::SQLException& e) {
+        UE_LOG(LogTemp, Error, TEXT("SQL Exception: %s"), *FString(e.what()));
+    }
+    catch (const std::exception& e) {
+        UE_LOG(LogTemp, Error, TEXT("Standard Exception: %s"), *FString(e.what()));
+    }
+    catch (...) {
+        UE_LOG(LogTemp, Error, TEXT("SQL execute: Unknown Exception occurred."));
+    }
+
+    return drones;
+}
+
 void UDatabaseHelper::Initialize()
 {
     FString Host, User, Pass;
@@ -182,11 +235,27 @@ void UDatabaseHelper::Initialize()
         stamt->execute("CREATE DATABASE IF NOT EXISTS DronePath3D");
         stamt->execute("USE DronePath3D");
         stamt->execute("CREATE TABLE IF NOT EXISTS Scenes ("
-            "SceneID INT AUTO_INCREMENT PRIMARY KEY COMMENT '场景唯一标识符',"
-            "Name VARCHAR(255) NOT NULL COMMENT '场景名称',"
-            "Description VARCHAR(500) COMMENT '场景描述',"
-            "PointCloudDataPath VARCHAR(1000) COMMENT '点云数据文件路径'"
-        ") COMMENT = '场景信息表'; ");
+            "SceneID INT AUTO_INCREMENT PRIMARY KEY,"
+            "Name VARCHAR(255) NOT NULL,"
+            "Description VARCHAR(500),"
+            "PointCloudDataPath VARCHAR(1000)"
+        "); ");
+        stamt->execute("CREATE TABLE drones ("
+            "DroneID INT AUTO_INCREMENT PRIMARY KEY,"
+            "SceneID INT,"
+            "StartX FLOAT,"
+            "StartY FLOAT,"
+            "StartZ FLOAT,"
+            "Name VARCHAR(255),"
+            "MaxSpeed FLOAT,"
+            "MaxHeight FLOAT,"
+            "Endurance FLOAT,"
+            "Weight FLOAT,"
+            "MaxThrust FLOAT,"
+            "Diameter FLOAT,"
+            "Height FLOAT,"
+            "FOREIGN KEY(SceneID) REFERENCES scenes(SceneID)"
+        "); ");
     }
     catch (const sql::SQLException& e) {
         UE_LOG(LogTemp, Error, TEXT("SQL Exception: %s"), *FString(e.what()));
