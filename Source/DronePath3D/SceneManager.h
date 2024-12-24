@@ -29,7 +29,7 @@ public:
 	void ImportScene(FString FilePath);
 
 	UFUNCTION(BlueprintCallable, Category = "Scene Manager")
-	void DeleteScene(int32 ID);
+	void DeleteScene(int32 ID, FString FilePath);
 
 private:
 

@@ -24,6 +24,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Scene Info")
 	ULidarPointCloud* getPointCloudData();
 
+	UPROPERTY(BlueprintReadOnly, Category = "Scene Info")
 	FString PointCloudDataPath;
 
 private:

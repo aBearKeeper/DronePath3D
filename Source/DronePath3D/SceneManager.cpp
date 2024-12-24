@@ -3,7 +3,9 @@
 
 #include "SceneManager.h"
 #include "DatabaseHelper.h"
+#include "FileDialogHelper.h"
 // #include "LidarPointCloud.h"
+
 
 USceneManager* USceneManager::GetSingleton()
 {
@@ -21,9 +23,10 @@ void USceneManager::ImportScene(FString FilePath)
 	Initialize();
 }
 
-void USceneManager::DeleteScene(int32 ID)
+void USceneManager::DeleteScene(int32 ID, FString FilePath)
 {
 	UDatabaseHelper::GetSingleton()->DeleteScene(ID);
+	UFileDialogHelper::RemovePointCloudFile(FilePath);
 	Initialize();
 }
 
