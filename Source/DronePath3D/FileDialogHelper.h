@@ -17,4 +17,7 @@ class DRONEPATH3D_API UFileDialogHelper : public UBlueprintFunctionLibrary
 public:
 	UFUNCTION(BlueprintCallable, Category = "File Dialog")
 	static FString SelectAndCopyPointCloudFile();
+	
+	UFUNCTION(BlueprintCallable, Category = "File Dialog")
+	static bool RemovePointCloudFile(FString FilePath);
 };
