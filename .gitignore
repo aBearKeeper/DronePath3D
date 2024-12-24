@@ -25,6 +25,3 @@ DronePath3D.sln
 *.suo
 *.user
 *.las
-
-# 忽略配置文件
-DefaultGame.ini
