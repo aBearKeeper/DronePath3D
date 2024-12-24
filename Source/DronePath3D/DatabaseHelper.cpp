@@ -203,11 +203,11 @@ TArray<UDroneInfo*> UDatabaseHelper::GetAllDrones()
             droneInfo->MaxThrust = res->getDouble("MaxThrust");
             droneInfo->Diameter = res->getDouble("Diameter");
             droneInfo->Height = res->getDouble("Height");
-            droneInfo->StartPosition = {
+            droneInfo->StartPosition = FVector(
                 res->getDouble("StartX"),
                 res->getDouble("StartY"),
                 res->getDouble("StartZ")
-            };
+            );
 
             // 将 UDroneInfo 对象添加到 TArray
             drones.Add(droneInfo);

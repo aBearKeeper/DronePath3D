@@ -42,7 +42,6 @@ public:
 	TArray<UDroneInfo*> GetAllDrones();
 
 private:
-
 	static UDatabaseHelper* Singleton;
 
 	sql::mysql::MySQL_Driver* driver;

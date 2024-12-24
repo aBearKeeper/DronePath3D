@@ -32,7 +32,6 @@ public:
 	void DeleteScene(int32 ID, FString FilePath);
 
 private:
-
 	static USceneManager* Singleton;
 
 	void Initialize();

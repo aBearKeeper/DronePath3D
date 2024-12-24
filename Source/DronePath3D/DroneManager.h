@@ -25,10 +25,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Scene Manager")
 	static UDroneManager* GetSingleton();
 private:
+	UPROPERTY()
 	TMap<USceneInfo*, UDroneCluster*> DroneClusters;
+
 	static UDroneManager* Singleton;
 
 	void Initialize();
 
 	UDroneManager() {}
 };
+
+UDroneManager* UDroneManager::Singleton = nullptr;
