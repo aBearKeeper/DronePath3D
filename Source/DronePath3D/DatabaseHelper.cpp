@@ -37,41 +37,41 @@ bool UDatabaseHelper::execute(FString sql)
 bool UDatabaseHelper::AddNewScene(FString FilePath)
 {
     try {
-        // ´´½¨Êı¾İ¿âÁ¬½Ó
+        // åˆ›å»ºæ•°æ®åº“è¿æ¥
         std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
 
-        // Ñ¡ÔñÊı¾İ¿â
+        // é€‰æ‹©æ•°æ®åº“
         std::unique_ptr<sql::Statement> stmt(con->createStatement());
         stmt->execute("USE DronePath3D");
 
-        // »ñÈ¡ÎÄ¼şÃû×÷Îª Name
+        // è·å–æ–‡ä»¶åä½œä¸º Name
         std::string sceneName = TCHAR_TO_UTF8(*FPaths::GetBaseFilename(FilePath));
 
-        // 1. ¼ì²éÊÇ·ñÒÑ¾­´æÔÚÏàÍ¬µÄ Name
+        // 1. æ£€æŸ¥æ˜¯å¦å·²ç»å­˜åœ¨ç›¸åŒçš„ Name
         std::string checkQuery = "SELECT COUNT(*) FROM Scenes WHERE Name = ?";
         std::unique_ptr<sql::PreparedStatement> checkStmt(con->prepareStatement(checkQuery));
         checkStmt->setString(1, sceneName);
 
-        // Ö´ĞĞ²éÑ¯
+        // æ‰§è¡ŒæŸ¥è¯¢
         std::unique_ptr<sql::ResultSet> res(checkStmt->executeQuery());
         res->next();
 
-        // Èç¹û½á¹ûÊÇ 1£¬Ôò±íÊ¾ÒÑ¾­´æÔÚÏàÍ¬µÄ Name£¬·µ»Ø false
+        // å¦‚æœç»“æœæ˜¯ 1ï¼Œåˆ™è¡¨ç¤ºå·²ç»å­˜åœ¨ç›¸åŒçš„ Nameï¼Œè¿”å› false
         if (res->getInt(1) > 0) {
             UE_LOG(LogTemp, Warning, TEXT("Scene with name '%s' already exists."), *FString(sceneName.c_str()));
             return false;
         }
 
-        // 2. Èç¹ûÃ»ÓĞÖØ¸´µÄ Name£¬Ö´ĞĞ²åÈë²Ù×÷
+        // 2. å¦‚æœæ²¡æœ‰é‡å¤çš„ Nameï¼Œæ‰§è¡Œæ’å…¥æ“ä½œ
         std::string query = "INSERT INTO Scenes (Name, Description, PointCloudDataPath) VALUES (?, ?, ?)";
         std::unique_ptr<sql::PreparedStatement> pstmt(con->prepareStatement(query));
 
-        // ÉèÖÃ²ÎÊı
-        pstmt->setString(1, sceneName); // ÉèÖÃ Name
-        pstmt->setString(2, "description"); // ÉèÖÃ Description
-        pstmt->setString(3, TCHAR_TO_UTF8(*(FPaths::ProjectDir() + TEXT("Data/PointClouds/") + FilePath))); // ÉèÖÃ PointCloudDataPath
+        // è®¾ç½®å‚æ•°
+        pstmt->setString(1, sceneName); // è®¾ç½® Name
+        pstmt->setString(2, "description"); // è®¾ç½® Description
+        pstmt->setString(3, TCHAR_TO_UTF8(*(FPaths::ProjectDir() + TEXT("Data/PointClouds/") + FilePath))); // è®¾ç½® PointCloudDataPath
 
-        // Ö´ĞĞ²åÈë
+        // æ‰§è¡Œæ’å…¥
         pstmt->executeUpdate();
 
         return true;
@@ -91,26 +91,26 @@ bool UDatabaseHelper::AddNewScene(FString FilePath)
 bool UDatabaseHelper::DeleteScene(int32 SceneID)
 {
     try {
-        // ´´½¨Êı¾İ¿âÁ¬½Ó
+        // åˆ›å»ºæ•°æ®åº“è¿æ¥
         std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
 
-        // Ñ¡ÔñÊı¾İ¿â
+        // é€‰æ‹©æ•°æ®åº“
         std::unique_ptr<sql::Statement> stmt(con->createStatement());
         stmt->execute("USE DronePath3D");
 
-        // ´´½¨É¾³ıÓï¾ä
+        // åˆ›å»ºåˆ é™¤è¯­å¥
         std::string query = "DELETE FROM Scenes WHERE SceneID = ?";
 
-        // Ê¹ÓÃÔ¤´¦ÀíÓï¾ä
+        // ä½¿ç”¨é¢„å¤„ç†è¯­å¥
         std::unique_ptr<sql::PreparedStatement> pstmt(con->prepareStatement(query));
 
-        // ÉèÖÃ²ÎÊı
+        // è®¾ç½®å‚æ•°
         pstmt->setInt(1, SceneID);
 
-        // Ö´ĞĞÉ¾³ı²Ù×÷
+        // æ‰§è¡Œåˆ é™¤æ“ä½œ
         int rowsAffected = pstmt->executeUpdate();
 
-        // ¼ì²éÊÇ·ñÓĞ¼ÇÂ¼±»É¾³ı
+        // æ£€æŸ¥æ˜¯å¦æœ‰è®°å½•è¢«åˆ é™¤
         if (rowsAffected > 0) {
             UE_LOG(LogTemp, Log, TEXT("Scene with ID %d deleted successfully."), SceneID);
             return true;
@@ -135,27 +135,27 @@ TArray<USceneInfo*> UDatabaseHelper::GetAllScenes()
 {
     TArray<USceneInfo*> scenes;
     try {
-        // ´´½¨Êı¾İ¿âÁ¬½Ó
+        // åˆ›å»ºæ•°æ®åº“è¿æ¥
         std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
 
-        // Ñ¡ÔñÊı¾İ¿â
+        // é€‰æ‹©æ•°æ®åº“
         std::unique_ptr<sql::Statement> stmt(con->createStatement());
         stmt->execute("USE DronePath3D");
 
-        // Ö´ĞĞ²éÑ¯Óï¾ä
+        // æ‰§è¡ŒæŸ¥è¯¢è¯­å¥
         std::unique_ptr<sql::ResultSet> res(stmt->executeQuery("SELECT * FROM Scenes"));
 
-        // ±éÀú½á¹û¼¯
+        // éå†ç»“æœé›†
         while (res->next()) {
-            // ´´½¨Ò»¸öĞÂµÄ SceneInfo ¶ÔÏó
+            // åˆ›å»ºä¸€ä¸ªæ–°çš„ SceneInfo å¯¹è±¡
             USceneInfo* sceneInfo = NewObject<USceneInfo>();
 
-            // »ñÈ¡²éÑ¯½á¹û²¢Ìî³ä USceneInfo ¶ÔÏó
+            // è·å–æŸ¥è¯¢ç»“æœå¹¶å¡«å…… USceneInfo å¯¹è±¡
             sceneInfo->SceneID = res->getInt("SceneID");
             sceneInfo->SceneName = FString(res->getString("Name").c_str());
             sceneInfo->PointCloudDataPath = FString(res->getString("PointCloudDataPath").c_str());
 
-            // ½« SceneInfo ¶ÔÏóÌí¼Óµ½ TArray
+            // å°† SceneInfo å¯¹è±¡æ·»åŠ åˆ° TArray
             scenes.Add(sceneInfo);
         }
 
@@ -177,22 +177,22 @@ TArray<UDroneInfo*> UDatabaseHelper::GetAllDrones()
 {
     TArray<UDroneInfo*> drones;
     try {
-        // ´´½¨Êı¾İ¿âÁ¬½Ó
+        // åˆ›å»ºæ•°æ®åº“è¿æ¥
         std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
 
-        // Ñ¡ÔñÊı¾İ¿â
+        // é€‰æ‹©æ•°æ®åº“
         std::unique_ptr<sql::Statement> stmt(con->createStatement());
         stmt->execute("USE DronePath3D");
 
-        // Ö´ĞĞ²éÑ¯Óï¾ä
+        // æ‰§è¡ŒæŸ¥è¯¢è¯­å¥
         std::unique_ptr<sql::ResultSet> res(stmt->executeQuery("SELECT * FROM drones"));
 
-        // ±éÀú½á¹û¼¯
+        // éå†ç»“æœé›†
         while (res->next()) {
-            // ´´½¨Ò»¸öĞÂµÄ UDroneInfo ¶ÔÏó
+            // åˆ›å»ºä¸€ä¸ªæ–°çš„ UDroneInfo å¯¹è±¡
             UDroneInfo* droneInfo = NewObject<UDroneInfo>();
 
-            // »ñÈ¡²éÑ¯½á¹û²¢Ìî³ä UDroneInfo ¶ÔÏó
+            // è·å–æŸ¥è¯¢ç»“æœå¹¶å¡«å…… UDroneInfo å¯¹è±¡
             droneInfo->DroneID = res->getInt("DroneID");
             droneInfo->SceneID = res->getInt("SceneID");
             droneInfo->Name = FString(res->getString("Name").c_str());
@@ -209,7 +209,7 @@ TArray<UDroneInfo*> UDatabaseHelper::GetAllDrones()
                 res->getDouble("StartZ")
             };
 
-            // ½« UDroneInfo ¶ÔÏóÌí¼Óµ½ TArray
+            // å°† UDroneInfo å¯¹è±¡æ·»åŠ åˆ° TArray
             drones.Add(droneInfo);
         }
     }
@@ -230,7 +230,7 @@ void UDatabaseHelper::Initialize()
 {
     FString Host, User, Pass;
 
-    // ´ÓÅäÖÃÎÄ¼şÖĞ¶ÁÈ¡
+    // ä»é…ç½®æ–‡ä»¶ä¸­è¯»å–
     if (GConfig)
     {
         GConfig->GetString(TEXT("DatabaseSettings"), TEXT("Host"), Host, GGameIni);
@@ -256,7 +256,7 @@ void UDatabaseHelper::Initialize()
             "Description VARCHAR(500),"
             "PointCloudDataPath VARCHAR(1000)"
         "); ");
-        stamt->execute("CREATE TABLE drones ("
+        stamt->execute("CREATE TABLE IF NOT EXISTS Drones ("
             "DroneID INT AUTO_INCREMENT PRIMARY KEY,"
             "SceneID INT,"
             "StartX FLOAT,"
