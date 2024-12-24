@@ -197,12 +197,31 @@ void UDatabaseHelper::Initialize()
     std::unique_ptr<sql::Statement> stamt(con->createStatement());
     stamt->execute("CREATE DATABASE IF NOT EXISTS DronePath3D");
     stamt->execute("USE DronePath3D");
+    stamt->execute("CREATE TABLE IF NOT EXISTS Scenes ("
+        "SceneID INT AUTO_INCREMENT PRIMARY KEY,"
+        "Name VARCHAR(255) NOT NULL,"
+        "Description VARCHAR(500),"
+        "PointCloudDataPath VARCHAR(1000)"
+        "); ");
+    stamt->execute("CREATE TABLE IF NOT EXISTS Drones ("
+        "DroneID INT AUTO_INCREMENT PRIMARY KEY,"
+        "SceneID INT,"
+        "StartX FLOAT,"
+        "StartY FLOAT,"
+        "StartZ FLOAT,"
+        "Name VARCHAR(255),"
+        "MaxSpeed FLOAT,"
+        "MaxHeight FLOAT,"
+        "Endurance FLOAT,"
+        "Weight FLOAT,"
+        "MaxThrust FLOAT,"
+        "Diameter FLOAT,"
+        "Height FLOAT,"
+        "FOREIGN KEY(SceneID) REFERENCES scenes(SceneID)"
+        "); ");
 }
 
 UDatabaseHelper::UDatabaseHelper() {
 
 }
 
-#undef HOSTNAME
-#undef USERNAME
-#undef PASSWORD
