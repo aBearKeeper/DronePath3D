@@ -11,6 +11,7 @@
 #include "cppconn/driver.h"
 #include "cppconn/exception.h"
 #include "SceneInfo.h"
+#include "DroneInfo.h"
 
 #include "DatabaseHelper.generated.h"
 
@@ -37,6 +38,8 @@ public:
 	bool DeleteScene(int32 SceneID);
 
 	TArray<USceneInfo*> GetAllScenes();
+
+	TArray<UDroneInfo*> GetAllDrones();
 
 private:
 
