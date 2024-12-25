@@ -35,8 +35,6 @@ private:
 	static USceneManager* Singleton;
 
 	void Initialize();
-
-	USceneManager(){}
 };
 
 USceneManager* USceneManager::Singleton = nullptr;

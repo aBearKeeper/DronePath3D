@@ -43,6 +43,16 @@ UDroneManager* UDroneManager::GetSingleton()
 	return Singleton;
 }
 
+bool UDroneManager::NewDrone(UDroneInfo* DroneInfo)
+{
+	if (UDatabaseHelper::GetSingleton()->AddNewDrone(DroneInfo))
+	{
+		Initialize();		
+		return true;
+	}
+	return false;
+}
+
 void UDroneManager::Initialize()
 {
 	USceneManager* SceneManager = USceneManager::GetSingleton();

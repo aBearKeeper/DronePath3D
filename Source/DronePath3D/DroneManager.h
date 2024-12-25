@@ -17,16 +17,22 @@ class DRONEPATH3D_API UDroneManager : public UObject
 	GENERATED_BODY()
 
 public:
-	void InitDroneCluster(USceneInfo* Scene);
 	void DeleteDroneCluster(UDroneCluster*);
+
 	void DeleteDroneCluster(USceneInfo*);
+
+	UFUNCTION(BlueprintCallable, Category = "Drone Manager")
 	UDroneCluster* GetDroneCluster(USceneInfo* SceneInfo);
 
-	UFUNCTION(BlueprintCallable, Category = "Scene Manager")
+	UFUNCTION(BlueprintCallable, Category = "Drone Manager")
 	static UDroneManager* GetSingleton();
+
+	bool NewDrone(UDroneInfo* DroneInfo);
 private:
 	UPROPERTY()
 	TMap<USceneInfo*, UDroneCluster*> DroneClusters;
+
+	void InitDroneCluster(USceneInfo* Scene);
 
 	static UDroneManager* Singleton;
 

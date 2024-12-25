@@ -10,12 +10,15 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class DRONEPATH3D_API UDroneCluster : public UObject
 {
 	GENERATED_BODY()
 public:
+	UPROPERTY(BlueprintReadOnly, Category = "Drone Cluster")
 	TArray<UDroneInfo*> Drones;
+	UPROPERTY(BlueprintReadWrite, Category = "Drone Cluster")
+	UDroneInfo* CurrentDrone = nullptr;
 	void AddDrone(UDroneInfo* Drone);
 	void RemoveDrone(UDroneInfo* Drone);
 };
