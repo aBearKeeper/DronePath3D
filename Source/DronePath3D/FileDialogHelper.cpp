@@ -27,6 +27,12 @@ FString UFileDialogHelper::SelectAndCopyPointCloudFile()
         UE_LOG(LogTemp, Warning, TEXT("No file selected or operation canceled."));
         return ("");
     }
+    // 如果用户取消选择文件，AbsoluteOpenFileNames 会为空
+    if (AbsoluteOpenFileNames.Num() == 0)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("No file selected."));
+        return "";
+    }
 
     // 定义目标文件夹路径（相对于项目目录）
     FString DestinationFolder = FPaths::ProjectDir() + TEXT("Data/PointClouds/");
