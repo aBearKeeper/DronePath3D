@@ -26,7 +26,7 @@ public:
 	static USceneManager* GetSingleton();
 
 	UFUNCTION(BlueprintCallable, Category = "Scene Manager")
-	void ImportScene(FString FilePath);
+	bool ImportScene(FString FilePath);
 
 	UFUNCTION(BlueprintCallable, Category = "Scene Manager")
 	void DeleteScene(int32 ID, FString FilePath);

@@ -17,10 +17,13 @@ USceneManager* USceneManager::GetSingleton()
 	return Singleton;
 }
 
-void USceneManager::ImportScene(FString FilePath)
+bool USceneManager::ImportScene(FString FilePath)
 {
-	UDatabaseHelper::GetSingleton()->AddNewScene(FilePath);
+	if (!UDatabaseHelper::GetSingleton()->AddNewScene(FilePath)) {
+		return false;
+	}
 	Initialize();
+	return true;
 }
 
 void USceneManager::DeleteScene(int32 ID, FString FilePath)
