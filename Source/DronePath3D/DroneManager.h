@@ -27,7 +27,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Drone Manager")
 	static UDroneManager* GetSingleton();
 
-	bool NewDrone(UDroneInfo* DroneInfo);
+	UFUNCTION(BlueprintCallable, Category = "Drone Manager")
+	bool NewDrone(int32 SceneID, FString Name, FVector Position);
 private:
 	UPROPERTY()
 	TMap<USceneInfo*, UDroneCluster*> DroneClusters;

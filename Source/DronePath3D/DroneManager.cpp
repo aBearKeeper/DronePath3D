@@ -43,8 +43,12 @@ UDroneManager* UDroneManager::GetSingleton()
 	return Singleton;
 }
 
-bool UDroneManager::NewDrone(UDroneInfo* DroneInfo)
+bool UDroneManager::NewDrone(int32 SceneID, FString Name, FVector Position)
 {
+	UDroneInfo* DroneInfo = NewObject<UDroneInfo>();
+	DroneInfo->SceneID = SceneID;
+	DroneInfo->Name = Name;
+	DroneInfo->StartPosition = Position;
 	if (UDatabaseHelper::GetSingleton()->AddNewDrone(DroneInfo))
 	{
 		Initialize();		
