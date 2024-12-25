@@ -17,7 +17,7 @@ class DRONEPATH3D_API UDroneManager : public UObject
 	GENERATED_BODY()
 
 public:
-	void ConfigureDroneCluster(USceneInfo* Scene);
+	void InitDroneCluster(USceneInfo* Scene);
 	void DeleteDroneCluster(UDroneCluster*);
 	void DeleteDroneCluster(USceneInfo*);
 	UDroneCluster* GetDroneCluster(USceneInfo* SceneInfo);

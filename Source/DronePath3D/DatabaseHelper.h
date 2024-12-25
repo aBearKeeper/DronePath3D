@@ -37,8 +37,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
 	bool DeleteScene(int32 SceneID);
 
+	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
 	TArray<USceneInfo*> GetAllScenes();
 
+	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
+	bool AddNewDrone(const UDroneInfo* DroneInfo);
+
+	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
+	bool DeleteDroneByID(int32 DroneID);
+
+	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
+	bool UpdateDroneInfo(UDroneInfo* DroneInfo);
+
+	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
 	TArray<UDroneInfo*> GetAllDrones();
 
 private:

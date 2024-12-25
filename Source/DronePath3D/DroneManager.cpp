@@ -5,10 +5,10 @@
 #include "SceneManager.h"
 #include "DatabaseHelper.h"
 
-void UDroneManager::ConfigureDroneCluster(USceneInfo* SceneInfo)
+void UDroneManager::InitDroneCluster(USceneInfo* SceneInfo)
 {
 	UDroneCluster* newCluster = NewObject<UDroneCluster>();
-	DroneClusters.Add(SceneInfo, newCluster);
+	DroneClusters.FindOrAdd(SceneInfo) = newCluster;
 }
 
 void UDroneManager::DeleteDroneCluster(UDroneCluster* DroneCluster)
@@ -46,11 +46,11 @@ UDroneManager* UDroneManager::GetSingleton()
 void UDroneManager::Initialize()
 {
 	USceneManager* SceneManager = USceneManager::GetSingleton();
+	UDatabaseHelper* DatabaseHelper = UDatabaseHelper::GetSingleton();
+	TArray<UDroneInfo*> Drones = DatabaseHelper->GetAllDrones();
 	for (auto Scene : SceneManager->Scenes)
 	{
-		ConfigureDroneCluster(Scene);
-		UDatabaseHelper* DatabaseHelper = UDatabaseHelper::GetSingleton();
-		TArray<UDroneInfo*> Drones = DatabaseHelper->GetAllDrones();
+		InitDroneCluster(Scene);
 		for (auto Drone : Drones)
 		{
 			if (Drone->SceneID == Scene->SceneID)
