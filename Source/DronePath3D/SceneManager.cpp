@@ -4,6 +4,7 @@
 #include "SceneManager.h"
 #include "DatabaseHelper.h"
 #include "FileDialogHelper.h"
+#include "DroneManager.h"
 // #include "LidarPointCloud.h"
 
 
@@ -36,7 +37,5 @@ void USceneManager::DeleteScene(int32 ID, FString FilePath)
 void USceneManager::Initialize()
 {
 	Scenes = UDatabaseHelper::GetSingleton()->GetAllScenes();
-	//for (USceneInfo* Scene : Scenes) {
-	//	Scene->PointCloudData = ULidarPointCloud::CreateFromFile(Scene->PointCloudDataPath);
-	//}
+	UDroneManager::GetSingleton()->Initialize();
 }

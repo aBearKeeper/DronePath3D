@@ -31,10 +31,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Scene Manager")
 	void DeleteScene(int32 ID, FString FilePath);
 
+	void Initialize();
+
 private:
 	static USceneManager* Singleton;
-
-	void Initialize();
 };
 
 USceneManager* USceneManager::Singleton = nullptr;

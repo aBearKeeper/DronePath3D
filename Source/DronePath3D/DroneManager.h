@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "SceneInfo.h"
+#include "SceneManager.h"
 #include "DroneCluster.h"
 #include "DroneManager.generated.h"
 
@@ -29,6 +30,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Drone Manager")
 	bool NewDrone(int32 SceneID, FString Name, FVector Position);
+
+	void Initialize();
 private:
 	UPROPERTY()
 	TMap<USceneInfo*, UDroneCluster*> DroneClusters;
@@ -36,8 +39,6 @@ private:
 	void InitDroneCluster(USceneInfo* Scene);
 
 	static UDroneManager* Singleton;
-
-	void Initialize();
 
 	UDroneManager() {}
 };
