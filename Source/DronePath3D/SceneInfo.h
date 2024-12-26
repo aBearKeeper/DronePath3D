@@ -30,5 +30,5 @@ public:
 private:
 
 	UPROPERTY()
-	ULidarPointCloud* PointCloudData = nullptr;
+	ULidarPointCloud* PointCloudData = nullptr; //abandoned
 };

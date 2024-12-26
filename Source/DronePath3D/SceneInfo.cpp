@@ -6,8 +6,5 @@
 
 ULidarPointCloud* USceneInfo::getPointCloudData()
 {
-	if (!PointCloudData) {
-		PointCloudData = ULidarPointCloud::CreateFromFile(PointCloudDataPath);
-	}
-	return PointCloudData;
+	return ULidarPointCloud::CreateFromFile(PointCloudDataPath);
 }
