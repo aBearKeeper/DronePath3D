@@ -33,6 +33,26 @@ UDroneCluster* UDroneManager::GetDroneCluster(USceneInfo* SceneInfo)
 	return DroneClusters[SceneInfo];
 }
 
+void UDroneManager::RemoveDrone(UDroneInfo* DroneInfo)
+{
+	if (!DroneInfo)return;
+	// 数据库中删除
+	UDatabaseHelper::GetSingleton()->DeleteDrone(DroneInfo->DroneID);
+
+	// 程序集群数据中删除
+	for (auto DroneCluster : DroneClusters) {
+		if (DroneCluster.Key->SceneID == DroneInfo->SceneID) {
+			DroneCluster.Value->RemoveDrone(DroneInfo);
+			break;
+		}
+	}
+}
+
+void UDroneManager::UpdateDrone(UDroneInfo* DroneInfo)
+{
+	UDatabaseHelper::GetSingleton()->UpdateDroneInfo(DroneInfo);
+}
+
 UDroneManager* UDroneManager::GetSingleton()
 {
 	if (!Singleton) {
@@ -59,6 +79,7 @@ bool UDroneManager::NewDrone(int32 SceneID, FString Name, FVector Position)
 
 void UDroneManager::Initialize()
 {
+	DroneClusters.Empty();
 	USceneManager* SceneManager = USceneManager::GetSingleton();
 	UDatabaseHelper* DatabaseHelper = UDatabaseHelper::GetSingleton();
 	TArray<UDroneInfo*> Drones = DatabaseHelper->GetAllDrones();

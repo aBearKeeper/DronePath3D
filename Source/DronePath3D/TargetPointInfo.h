@@ -9,13 +9,16 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class DRONEPATH3D_API UTargetPointInfo : public UObject
 {
 	GENERATED_BODY()
 public:
-	int32 SceneID;
+	UPROPERTY(BlueprintReadOnly, Category = "Target Point Info")
 	int32 PointID;
+	int32 SceneID;
+	UPROPERTY(BlueprintReadWrite, Category = "Target Point Info")
 	int32 AssignedDroneID;
+	UPROPERTY(BlueprintReadWrite, Category = "Target Point Info")
 	FVector Position;
 };

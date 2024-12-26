@@ -52,6 +52,8 @@ public:
 
 	TArray<UTargetPointInfo*> GetAllTargetPoints();
 
+	TArray<UTargetPointInfo*> GetSceneTargetPoints(int32 SceneID);
+
 private:
 	static UDatabaseHelper* Singleton;
 

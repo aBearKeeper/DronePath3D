@@ -568,6 +568,63 @@ TArray<UTargetPointInfo*> UDatabaseHelper::GetAllTargetPoints()
     return points;
 }
 
+TArray<UTargetPointInfo*> UDatabaseHelper::GetSceneTargetPoints(int32 SceneID)
+{
+    TArray<UTargetPointInfo*> points;
+
+    try {
+        // 创建数据库连接
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
+
+        // 选择数据库
+        std::unique_ptr<sql::Statement> stmt(con->createStatement());
+        stmt->execute("USE DronePath3D");
+
+        // 创建查询语句
+        std::string query = "SELECT * FROM TargetPoints WHERE SceneID = ?";
+
+        // 准备预处理语句
+        std::unique_ptr<sql::PreparedStatement> pstmt(con->prepareStatement(query));
+
+        // 设置参数
+        pstmt->setInt(1, SceneID);
+
+        // 执行查询语句
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        // 遍历结果集
+        while (res->next()) {
+            // 创建一个新的 UTargetPointInfo 对象
+            UTargetPointInfo* pointInfo = NewObject<UTargetPointInfo>();
+
+            // 获取查询结果并填充 UTargetPointInfo 对象
+            pointInfo->PointID = res->getInt("TargetPointID");
+            pointInfo->SceneID = res->getInt("SceneID");
+            pointInfo->AssignedDroneID = res->getInt("DroneID");
+            pointInfo->Position = FVector(
+                res->getDouble("CoordinateX"),
+                res->getDouble("CoordinateY"),
+                res->getDouble("CoordinateZ")
+            );
+
+            // 将 UTargetPointInfo 对象添加到 TArray
+            points.Add(pointInfo);
+        }
+    }
+    catch (const sql::SQLException& e) {
+        UE_LOG(LogTemp, Error, TEXT("SQL Exception: %s"), *FString(e.what()));
+    }
+    catch (const std::exception& e) {
+        UE_LOG(LogTemp, Error, TEXT("Standard Exception: %s"), *FString(e.what()));
+    }
+    catch (...) {
+        UE_LOG(LogTemp, Error, TEXT("SQL execute: Unknown Exception occurred."));
+    }
+
+    return points;
+}
+
+
 void UDatabaseHelper::Initialize()
 {
     FString Host, User, Pass;
@@ -621,8 +678,7 @@ void UDatabaseHelper::Initialize()
             "CoordinateX FLOAT,"
             "CoordinateY FLOAT,"
             "CoordinateZ FLOAT,"
-            "FOREIGN KEY(SceneID) REFERENCES Scenes(SceneID) ON DELETE CASCADE,"
-            "FOREIGN KEY(DroneID) REFERENCES Drones(DroneID) ON DELETE CASCADE"
+            "FOREIGN KEY(SceneID) REFERENCES Scenes(SceneID) ON DELETE CASCADE"
             "); ");
 
     }

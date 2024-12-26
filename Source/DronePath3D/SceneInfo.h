@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "LidarPointCloudActor.h"
+#include "TargetPointInfo.h"
 #include "SceneInfo.generated.h"
 
 /**
@@ -26,6 +27,21 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Scene Info")
 	FString PointCloudDataPath;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Scene Info")
+	TArray<UTargetPointInfo*> TargetPoints;
+
+	UFUNCTION(BlueprintCallable, Category = "Scene Info")
+	UTargetPointInfo* FindTargetPointByID(int32 PointID);
+
+	UFUNCTION(BlueprintCallable, Category = "Scene Info")
+	void AddTargetPoint(FVector Position);
+
+	UFUNCTION(BlueprintCallable, Category = "Scene Info")
+	void UpdateTargetPoint(UTargetPointInfo* TargetPointInfo);
+
+	UFUNCTION(BlueprintCallable, Category = "Scene Info")
+	void RemoveTargetPoint(UTargetPointInfo* TargetPointInfo);
 
 private:
 

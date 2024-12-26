@@ -36,6 +36,10 @@ void USceneManager::DeleteScene(int32 ID, FString FilePath)
 
 void USceneManager::Initialize()
 {
-	Scenes = UDatabaseHelper::GetSingleton()->GetAllScenes();
+	UDatabaseHelper* DatabaseHelper = UDatabaseHelper::GetSingleton();
+	Scenes = DatabaseHelper->GetAllScenes();
 	UDroneManager::GetSingleton()->Initialize();
+	for (auto Scene : Scenes) {
+		Scene->TargetPoints = DatabaseHelper->GetSceneTargetPoints(Scene->SceneID);
+	}
 }

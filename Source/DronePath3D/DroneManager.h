@@ -26,6 +26,12 @@ public:
 	UDroneCluster* GetDroneCluster(USceneInfo* SceneInfo);
 
 	UFUNCTION(BlueprintCallable, Category = "Drone Manager")
+	void RemoveDrone(UDroneInfo* DroneInfo);
+
+	UFUNCTION(BlueprintCallable, Category = "Drone Manager")
+	void UpdateDrone(UDroneInfo* DroneInfo);
+
+	UFUNCTION(BlueprintCallable, Category = "Drone Manager")
 	static UDroneManager* GetSingleton();
 
 	UFUNCTION(BlueprintCallable, Category = "Drone Manager")
