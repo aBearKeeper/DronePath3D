@@ -12,3 +12,14 @@ void UDroneCluster::RemoveDrone(UDroneInfo* Drone)
 {
 	Drones.Remove(Drone);
 }
+
+bool UDroneCluster::setCurrentDroneByName(FString droneName)
+{
+	for (auto Drone : Drones) {
+		if (Drone->Name == droneName) {
+			CurrentDrone = Drone;
+			return true;
+		}
+	}
+	return false;
+}

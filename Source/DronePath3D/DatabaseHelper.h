@@ -12,6 +12,7 @@
 #include "cppconn/exception.h"
 #include "SceneInfo.h"
 #include "DroneInfo.h"
+#include "TargetPointInfo.h"
 
 #include "DatabaseHelper.generated.h"
 
@@ -44,13 +45,25 @@ public:
 	bool AddNewDrone(const UDroneInfo* DroneInfo);
 
 	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
-	bool DeleteDroneByID(int32 DroneID);
+	bool DeleteDrone(int32 DroneID);
 
 	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
 	bool UpdateDroneInfo(UDroneInfo* DroneInfo);
 
 	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
 	TArray<UDroneInfo*> GetAllDrones();
+
+	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
+	bool AddNewTargetPoint(const UTargetPointInfo* TargetPointInfo);
+
+	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
+	bool DeleteTargetPoint(int32 TargetPointID);
+
+	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
+	bool UpdateTargetPointInfo(UTargetPointInfo* TargetPointInfo);
+
+	UFUNCTION(BlueprintCallable, Category = "DatabaseHelper")
+	TArray<UTargetPointInfo*> GetAllTargetPoints();
 
 private:
 	static UDatabaseHelper* Singleton;
@@ -60,8 +73,6 @@ private:
 	std::string HostName, UserName, Password;
 
 	void Initialize();
-
-	UDatabaseHelper();
 
 };
 

@@ -21,4 +21,6 @@ public:
 	UDroneInfo* CurrentDrone = nullptr;
 	void AddDrone(UDroneInfo* Drone);
 	void RemoveDrone(UDroneInfo* Drone);
+	UFUNCTION(BlueprintCallable, Category = "Drone Cluster")
+	bool setCurrentDroneByName(FString droneName);
 };

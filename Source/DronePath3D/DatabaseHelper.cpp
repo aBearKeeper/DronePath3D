@@ -236,7 +236,7 @@ bool UDatabaseHelper::AddNewDrone(const UDroneInfo* DroneInfo)
     return false;
 }
 
-bool UDatabaseHelper::DeleteDroneByID(int32 DroneID)
+bool UDatabaseHelper::DeleteDrone(int32 DroneID)
 {
     try {
         // 创建数据库连接
@@ -387,6 +387,187 @@ TArray<UDroneInfo*> UDatabaseHelper::GetAllDrones()
     return drones;
 }
 
+bool UDatabaseHelper::AddNewTargetPoint(const UTargetPointInfo* TargetPointInfo)
+{
+    try {
+        // 创建数据库连接
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
+
+        // 选择数据库
+        std::unique_ptr<sql::Statement> stmt(con->createStatement());
+        stmt->execute("USE DronePath3D");
+
+        // 执行插入操作
+        std::string query = "INSERT INTO TargetPoints (SceneID, DroneID, CoordinateX, CoordinateY, CoordinateZ) "
+            "VALUES (?, ?, ?, ?, ?)";
+        std::unique_ptr<sql::PreparedStatement> pstmt(con->prepareStatement(query));
+
+        // 设置参数
+        pstmt->setInt(1, TargetPointInfo->SceneID);               // 设置 SceneID
+        pstmt->setInt(2, TargetPointInfo->AssignedDroneID);        // 设置 DroneID
+        pstmt->setDouble(3, TargetPointInfo->Position.X);          // 设置 CoordinateX
+        pstmt->setDouble(4, TargetPointInfo->Position.Y);          // 设置 CoordinateY
+        pstmt->setDouble(5, TargetPointInfo->Position.Z);          // 设置 CoordinateZ
+
+        // 执行插入
+        pstmt->executeUpdate();
+
+        return true;
+    }
+    catch (const sql::SQLException& e) {
+        UE_LOG(LogTemp, Error, TEXT("SQL Exception: %s"), *FString(e.what()));
+    }
+    catch (const std::exception& e) {
+        UE_LOG(LogTemp, Error, TEXT("Standard Exception: %s"), *FString(e.what()));
+    }
+    catch (...) {
+        UE_LOG(LogTemp, Error, TEXT("SQL execute: Unknown Exception occurred."));
+    }
+
+    return false;
+}
+
+bool UDatabaseHelper::DeleteTargetPoint(int32 TargetPointID)
+{
+    try {
+        // 创建数据库连接
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
+
+        // 选择数据库
+        std::unique_ptr<sql::Statement> stmt(con->createStatement());
+        stmt->execute("USE DronePath3D");
+
+        // 执行删除操作
+        std::string query = "DELETE FROM TargetPoints WHERE TargetPointID = ?";
+        std::unique_ptr<sql::PreparedStatement> pstmt(con->prepareStatement(query));
+
+        // 设置参数
+        pstmt->setInt(1, TargetPointID);
+
+        // 执行删除
+        pstmt->executeUpdate();
+
+        return true;
+    }
+    catch (const sql::SQLException& e) {
+        UE_LOG(LogTemp, Error, TEXT("SQL Exception: %s"), *FString(e.what()));
+    }
+    catch (const std::exception& e) {
+        UE_LOG(LogTemp, Error, TEXT("Standard Exception: %s"), *FString(e.what()));
+    }
+    catch (...) {
+        UE_LOG(LogTemp, Error, TEXT("SQL execute: Unknown Exception occurred."));
+    }
+
+    return false;
+}
+
+bool UDatabaseHelper::UpdateTargetPointInfo(UTargetPointInfo* TargetPointInfo)
+{
+    try {
+        // 创建数据库连接
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
+
+        // 选择数据库
+        std::unique_ptr<sql::Statement> stmt(con->createStatement());
+        stmt->execute("USE DronePath3D");
+
+        // 1. 检查是否存在该 TargetPointID
+        std::string checkQuery = "SELECT COUNT(*) FROM TargetPoints WHERE TargetPointID = ?";
+        std::unique_ptr<sql::PreparedStatement> checkStmt(con->prepareStatement(checkQuery));
+        checkStmt->setInt(1, TargetPointInfo->PointID);
+
+        // 执行查询
+        std::unique_ptr<sql::ResultSet> res(checkStmt->executeQuery());
+        res->next();
+
+        // 如果没有找到该 TargetPointID，返回 false
+        if (res->getInt(1) == 0) {
+            UE_LOG(LogTemp, Warning, TEXT("TargetPoint with ID '%d' does not exist."), TargetPointInfo->PointID);
+            return false;
+        }
+
+        // 2. 如果找到该 TargetPointID，执行更新操作
+        std::string query = "UPDATE TargetPoints SET SceneID = ?, DroneID = ?, CoordinateX = ?, CoordinateY = ?, CoordinateZ = ? "
+            "WHERE TargetPointID = ?";
+        std::unique_ptr<sql::PreparedStatement> pstmt(con->prepareStatement(query));
+
+        // 设置参数
+        pstmt->setInt(1, TargetPointInfo->SceneID);                // 设置 SceneID
+        pstmt->setInt(2, TargetPointInfo->AssignedDroneID);         // 设置 DroneID
+        pstmt->setDouble(3, TargetPointInfo->Position.X);           // 设置 CoordinateX
+        pstmt->setDouble(4, TargetPointInfo->Position.Y);           // 设置 CoordinateY
+        pstmt->setDouble(5, TargetPointInfo->Position.Z);           // 设置 CoordinateZ
+        pstmt->setInt(6, TargetPointInfo->PointID);                 // 设置 TargetPointID
+
+        // 执行更新
+        pstmt->executeUpdate();
+
+        return true;
+    }
+    catch (const sql::SQLException& e) {
+        UE_LOG(LogTemp, Error, TEXT("SQL Exception: %s"), *FString(e.what()));
+    }
+    catch (const std::exception& e) {
+        UE_LOG(LogTemp, Error, TEXT("Standard Exception: %s"), *FString(e.what()));
+    }
+    catch (...) {
+        UE_LOG(LogTemp, Error, TEXT("SQL execute: Unknown Exception occurred."));
+    }
+
+    return false;
+}
+
+
+
+
+TArray<UTargetPointInfo*> UDatabaseHelper::GetAllTargetPoints()
+{
+    TArray<UTargetPointInfo*> points;
+
+    try {
+        // 创建数据库连接
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
+
+        // 选择数据库
+        std::unique_ptr<sql::Statement> stmt(con->createStatement());
+        stmt->execute("USE DronePath3D");
+
+        // 执行查询语句
+        std::unique_ptr<sql::ResultSet> res(stmt->executeQuery("SELECT * FROM TargetPoints"));
+
+        // 遍历结果集
+        while (res->next()) {
+            // 创建一个新的 UTargetPointInfo 对象
+            UTargetPointInfo* pointInfo = NewObject<UTargetPointInfo>();
+
+            // 获取查询结果并填充 UTargetPointInfo 对象
+            pointInfo->PointID = res->getInt("TargetPointID");
+            pointInfo->SceneID = res->getInt("SceneID");
+            pointInfo->AssignedDroneID = res->getInt("DroneID");
+            pointInfo->Position = FVector(
+                res->getDouble("CoordinateX"),
+                res->getDouble("CoordinateY"),
+                res->getDouble("CoordinateZ")
+            );
+
+            // 将 UDroneInfo 对象添加到 TArray
+            points.Add(pointInfo);
+        }
+    }
+    catch (const sql::SQLException& e) {
+        UE_LOG(LogTemp, Error, TEXT("SQL Exception: %s"), *FString(e.what()));
+    }
+    catch (const std::exception& e) {
+        UE_LOG(LogTemp, Error, TEXT("Standard Exception: %s"), *FString(e.what()));
+    }
+    catch (...) {
+        UE_LOG(LogTemp, Error, TEXT("SQL execute: Unknown Exception occurred."));
+    }
+
+    return points;
+}
+
 void UDatabaseHelper::Initialize()
 {
     FString Host, User, Pass;
@@ -416,7 +597,7 @@ void UDatabaseHelper::Initialize()
             "Name VARCHAR(255) NOT NULL,"
             "Description VARCHAR(500),"
             "PointCloudDataPath VARCHAR(1000)"
-        "); ");
+            "); ");
         stamt->execute("CREATE TABLE IF NOT EXISTS Drones ("
             "DroneID INT AUTO_INCREMENT PRIMARY KEY,"
             "SceneID INT,"
@@ -431,8 +612,19 @@ void UDatabaseHelper::Initialize()
             "MaxThrust FLOAT,"
             "Diameter FLOAT,"
             "Height FLOAT,"
-            "FOREIGN KEY(SceneID) REFERENCES scenes(SceneID)"
-        "); ");
+            "FOREIGN KEY(SceneID) REFERENCES Scenes(SceneID) ON DELETE CASCADE"
+            "); ");
+        stamt->execute("CREATE TABLE IF NOT EXISTS TargetPoints ("
+            "TargetPointID INT AUTO_INCREMENT PRIMARY KEY,"
+            "SceneID INT,"
+            "DroneID INT,"
+            "CoordinateX FLOAT,"
+            "CoordinateY FLOAT,"
+            "CoordinateZ FLOAT,"
+            "FOREIGN KEY(SceneID) REFERENCES Scenes(SceneID) ON DELETE CASCADE,"
+            "FOREIGN KEY(DroneID) REFERENCES Drones(DroneID) ON DELETE CASCADE"
+            "); ");
+
     }
     catch (const sql::SQLException& e) {
         UE_LOG(LogTemp, Error, TEXT("SQL Exception: %s"), *FString(e.what()));
@@ -443,8 +635,4 @@ void UDatabaseHelper::Initialize()
     catch (...) {
         UE_LOG(LogTemp, Error, TEXT("SQL execute: Unknown Exception occurred."));
     }
-}
-
-UDatabaseHelper::UDatabaseHelper() {
-
 }
