@@ -17,10 +17,21 @@ class DRONEPATH3D_API UDroneCluster : public UObject
 public:
 	UPROPERTY(BlueprintReadOnly, Category = "Drone Cluster")
 	TArray<UDroneInfo*> Drones;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Drone Cluster")
 	UDroneInfo* CurrentDrone = nullptr;
+
 	void AddDrone(UDroneInfo* Drone);
+
 	void RemoveDrone(UDroneInfo* Drone);
+
 	UFUNCTION(BlueprintCallable, Category = "Drone Cluster")
 	bool setCurrentDroneByName(FString droneName);
+
+	UFUNCTION(BlueprintCallable, Category = "Drone Cluster")
+	UDroneInfo* getDroneByName(FString droneName);
+
+	UFUNCTION(BlueprintCallable, Category = "Drone Cluster")
+	UDroneInfo* getDroneByID(int32 droneID);
+
 };

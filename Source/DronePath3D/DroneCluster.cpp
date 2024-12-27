@@ -23,3 +23,23 @@ bool UDroneCluster::setCurrentDroneByName(FString droneName)
 	}
 	return false;
 }
+
+UDroneInfo* UDroneCluster::getDroneByName(FString droneName)
+{
+	for (auto drone : Drones) {
+		if (drone->Name == droneName) {
+			return drone;
+		}
+	}
+	return nullptr;
+}
+
+UDroneInfo* UDroneCluster::getDroneByID(int32 droneID)
+{
+	for (auto drone : Drones) {
+		if (drone->DroneID == droneID) {
+			return drone;
+		}
+	}
+	return nullptr;
+}
