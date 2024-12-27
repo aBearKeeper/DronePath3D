@@ -282,21 +282,38 @@ bool UDatabaseHelper::UpdateDroneInfo(UDroneInfo* DroneInfo)
         stmt->execute("USE DronePath3D");
 
         // 1. 检查是否存在该 DroneID
-        std::string checkQuery = "SELECT COUNT(*) FROM drones WHERE DroneID = ?";
-        std::unique_ptr<sql::PreparedStatement> checkStmt(con->prepareStatement(checkQuery));
-        checkStmt->setInt(1, DroneInfo->DroneID);
+        std::string checkQuery1 = "SELECT COUNT(*) FROM drones WHERE DroneID = ?";
+        std::unique_ptr<sql::PreparedStatement> checkStmt1(con->prepareStatement(checkQuery1));
+        checkStmt1->setInt(1, DroneInfo->DroneID);
 
         // 执行查询
-        std::unique_ptr<sql::ResultSet> res(checkStmt->executeQuery());
-        res->next();
+        std::unique_ptr<sql::ResultSet> res1(checkStmt1->executeQuery());
+        res1->next();
 
         // 如果没有找到该 DroneID，返回 false
-        if (res->getInt(1) == 0) {
+        if (res1->getInt(1) == 0) {
             UE_LOG(LogTemp, Warning, TEXT("Drone with ID '%d' does not exist."), DroneInfo->DroneID);
             return false;
         }
 
-        // 2. 如果找到该 DroneID，执行更新操作
+        // 2. 检查是否已经存在相同的 Name 和 SceneID
+        std::string checkQuery2 = "SELECT COUNT(*) FROM drones WHERE Name = ? AND SceneID = ? AND DroneID != ?";
+        std::unique_ptr<sql::PreparedStatement> checkStmt2(con->prepareStatement(checkQuery2));
+        checkStmt2->setString(1, TCHAR_TO_UTF8(*DroneInfo->Name));  // 设置 Name
+        checkStmt2->setInt(2, DroneInfo->SceneID);                   // 设置 SceneID
+        checkStmt2->setInt(3, DroneInfo->DroneID);                   // 设置 DroneID
+
+        // 执行查询
+        std::unique_ptr<sql::ResultSet> res2(checkStmt2->executeQuery());
+        res2->next();
+
+        // 如果结果大于 0，表示该组合已经存在，返回 false
+        if (res2->getInt(1) > 0) {
+            UE_LOG(LogTemp, Warning, TEXT("Drone with name '%s' and SceneID '%d' already exists."), *DroneInfo->Name, DroneInfo->SceneID);
+            return false;
+        }
+
+        // 3. 如果找到该 DroneID，执行更新操作
         std::string query = "UPDATE drones SET SceneID = ?, Name = ?, MaxSpeed = ?, MaxHeight = ?, Endurance = ?, "
             "Weight = ?, MaxThrust = ?, Diameter = ?, Height = ?, StartX = ?, StartY = ?, StartZ = ? WHERE DroneID = ?";
         std::unique_ptr<sql::PreparedStatement> pstmt(con->prepareStatement(query));

@@ -39,6 +39,9 @@ void UDroneManager::RemoveDrone(UDroneInfo* DroneInfo)
 	// 数据库中删除
 	UDatabaseHelper::GetSingleton()->DeleteDrone(DroneInfo->DroneID);
 
+	// 更新目标点信息
+	USceneManager::GetSingleton()->DroneRemovalNotice(DroneInfo->SceneID, DroneInfo->DroneID);
+
 	// 程序集群数据中删除
 	for (auto DroneCluster : DroneClusters) {
 		if (DroneCluster.Key->SceneID == DroneInfo->SceneID) {
@@ -48,9 +51,9 @@ void UDroneManager::RemoveDrone(UDroneInfo* DroneInfo)
 	}
 }
 
-void UDroneManager::UpdateDrone(UDroneInfo* DroneInfo)
+bool UDroneManager::UpdateDrone(UDroneInfo* DroneInfo)
 {
-	UDatabaseHelper::GetSingleton()->UpdateDroneInfo(DroneInfo);
+	return UDatabaseHelper::GetSingleton()->UpdateDroneInfo(DroneInfo);
 }
 
 UDroneManager* UDroneManager::GetSingleton()

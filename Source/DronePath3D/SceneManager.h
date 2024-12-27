@@ -22,7 +22,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Scene Manager")
 	USceneInfo* CurrentScene;
 
-	UFUNCTION(BlueprintCallable, Category = "Scene Manager")
+	UFUNCTION(BlueprintPure, Category = "Scene Manager")
 	static USceneManager* GetSingleton();
 
 	UFUNCTION(BlueprintCallable, Category = "Scene Manager")
@@ -30,6 +30,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Scene Manager")
 	void DeleteScene(int32 ID, FString FilePath);
+
+	void DroneRemovalNotice(int32 SceneID, int32 DroneID);
 
 	void Initialize();
 

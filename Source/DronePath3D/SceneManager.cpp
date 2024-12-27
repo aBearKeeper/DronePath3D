@@ -34,6 +34,22 @@ void USceneManager::DeleteScene(int32 ID, FString FilePath)
 	Initialize();
 }
 
+void USceneManager::DroneRemovalNotice(int32 SceneID, int32 DroneID)
+{
+	UDatabaseHelper* DatabaseHelper = UDatabaseHelper::GetSingleton();
+	for (auto Scene : Scenes) {
+		if (Scene->SceneID == SceneID) {
+			for (auto point : Scene->TargetPoints) {
+				if (point->AssignedDroneID == DroneID) {
+					point->AssignedDroneID = 0;
+					DatabaseHelper->UpdateTargetPointInfo(point);
+				}
+			}
+			break;
+		}
+	}
+}
+
 void USceneManager::Initialize()
 {
 	UDatabaseHelper* DatabaseHelper = UDatabaseHelper::GetSingleton();

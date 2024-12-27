@@ -29,9 +29,9 @@ public:
 	void RemoveDrone(UDroneInfo* DroneInfo);
 
 	UFUNCTION(BlueprintCallable, Category = "Drone Manager")
-	void UpdateDrone(UDroneInfo* DroneInfo);
+	bool UpdateDrone(UDroneInfo* DroneInfo);
 
-	UFUNCTION(BlueprintCallable, Category = "Drone Manager")
+	UFUNCTION(BlueprintPure, Category = "Drone Manager")
 	static UDroneManager* GetSingleton();
 
 	UFUNCTION(BlueprintCallable, Category = "Drone Manager")
