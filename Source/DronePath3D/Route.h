@@ -13,5 +13,13 @@ UCLASS()
 class DRONEPATH3D_API URoute : public UObject
 {
 	GENERATED_BODY()
-	
+public:
+	UPROPERTY(BlueprintReadOnly, Category = "Route")
+	int32 RouteID;
+	UPROPERTY(BlueprintReadOnly, Category = "Route")
+	int32 PlanID;
+	UPROPERTY(BlueprintReadOnly, Category = "Route")
+	int32 DroneID;
+	UPROPERTY(BlueprintReadOnly, Category = "Route")
+	TArray<FVector> Waypoints;
 };

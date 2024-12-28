@@ -30,6 +30,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Route Manager")
 	void DeletePlan(URoutePlan* Plan);
 
+	UFUNCTION(BlueprintCallable, Category = "Route Manager")
+	TArray<URoutePlan*> GetPlansBySceneID(int32 SceneID);
+
 	UPROPERTY(BlueprintReadWrite, Category = "Route Manager")
 	TArray<URoutePlan*> Plans;
 

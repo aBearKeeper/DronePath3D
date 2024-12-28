@@ -13,6 +13,7 @@
 #include "SceneInfo.h"
 #include "DroneInfo.h"
 #include "TargetPointInfo.h"
+#include "RoutePlan.h"
 
 #include "DatabaseHelper.generated.h"
 
@@ -53,6 +54,12 @@ public:
 	TArray<UTargetPointInfo*> GetAllTargetPoints();
 
 	TArray<UTargetPointInfo*> GetSceneTargetPoints(int32 SceneID);
+
+	bool AddNewRoutePlan(URoutePlan* Plan);
+
+	bool DeleteRoutePlan(int32 PlanID);
+
+	TArray<URoutePlan*> GetAllRoutePlans();
 
 private:
 	static UDatabaseHelper* Singleton;

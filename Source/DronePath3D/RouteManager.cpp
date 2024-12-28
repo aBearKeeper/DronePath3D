@@ -2,6 +2,9 @@
 
 
 #include "RouteManager.h"
+#include "DatabaseHelper.h"
+#include "FileDialogHelper.h"
+#include "SceneManager.h"
 
 URouteManager* URouteManager::GetSingleton()
 {
@@ -20,6 +23,7 @@ void URouteManager::PlanRoutes(TArray<UDroneInfo*> Drones, TArray<UTargetPointIn
 	{
 		DroneToPoints.Add(Drone, TArray<UTargetPointInfo*>());
 	}
+	//分配目标点
 	TArray<UTargetPointInfo*> PointsToRemove;
 	for (UTargetPointInfo* Point : Points) {
 		if (Point->AssignedDroneID != 0) {
@@ -38,6 +42,7 @@ void URouteManager::PlanRoutes(TArray<UDroneInfo*> Drones, TArray<UTargetPointIn
 	PointsToRemove.Empty();
 	if (TaskAssignmentDroneFirst)
 	{
+		// 平均任务量
 		while (Points.Num() > 0)
 		{
 			for (UDroneInfo* Drone : Drones)
@@ -64,6 +69,7 @@ void URouteManager::PlanRoutes(TArray<UDroneInfo*> Drones, TArray<UTargetPointIn
 	}
 	else
 	{
+		// 最近距离优先
 		for (UTargetPointInfo* Point : Points)
 		{
 			UDroneInfo* ClosestDrone = nullptr;
@@ -80,12 +86,18 @@ void URouteManager::PlanRoutes(TArray<UDroneInfo*> Drones, TArray<UTargetPointIn
 			DroneToPoints[ClosestDrone].Add(Point);
 		}
 	}
+	// 逐一规划路径
+	URoutePlan* Plan = NewObject<URoutePlan>();
+	USceneManager* SceneManager = USceneManager::GetSingleton();
+	Plan->SceneID = SceneManager->CurrentScene->SceneID;
 	for (auto Pair : DroneToPoints)
 	{
+		URoute* Route = NewObject<URoute>();
+		Route->DroneID = Pair.Key->DroneID;
 		FVector StartPoint = Pair.Key->StartPosition;
-		TArray<FVector> Route;
 		while (Pair.Value.Num() > 0)
 		{
+			Algorithm->SetParameter("Diameter", Pair.Key->Diameter);
 			UTargetPointInfo* ClosestPoint = nullptr;
 			float ClosestDistance = 0;
 			for (UTargetPointInfo* Point : Pair.Value)
@@ -97,23 +109,46 @@ void URouteManager::PlanRoutes(TArray<UDroneInfo*> Drones, TArray<UTargetPointIn
 					ClosestDistance = Distance;
 				}
 			}
-			Route += Algorithm->ExecuteAlgorithm(StartPoint, ClosestPoint->Position);
+			auto result = Algorithm->ExecuteAlgorithm(StartPoint, ClosestPoint->Position);
+			Route->Waypoints += result;
 			StartPoint = ClosestPoint->Position;
 			Pair.Value.Remove(ClosestPoint);
 		}
-		// TODO: Create a new RoutePlan object and add it to the Plans array
+		Plan->Routes.Add(Route);
 	}
+	UDatabaseHelper::GetSingleton()->AddNewRoutePlan(Plan);
+	for (auto route : Plan->Routes) {
+		UFileDialogHelper::SaveWaypointsToFile(route->RouteID, route->Waypoints);
+	}
+	Plans.Add(Plan);
 }
 
 void URouteManager::SimulatePlan(URoutePlan* Plan)
 {
+
 }
 
 void URouteManager::DeletePlan(URoutePlan* Plan)
 {
+	Plans.Remove(Plan);
+	UDatabaseHelper::GetSingleton()->DeleteRoutePlan(Plan->PlanID);
+}
+
+TArray<URoutePlan*> URouteManager::GetPlansBySceneID(int32 ScnenID) {
+	TArray<URoutePlan*> result;
+	for (auto plan : Plans) {
+		if (plan->SceneID == ScnenID)
+			result.Add(plan);
+	}
+	return result;
 }
 
 void URouteManager::Initialize()
 {
-
+	Plans = UDatabaseHelper::GetSingleton()->GetAllRoutePlans();
+	for (auto Plan : Plans) {
+		for (auto Route : Plan->Routes) {
+			UFileDialogHelper::LoadWaypointsFromFile(Route->RouteID, Route->Waypoints);
+		}
+	}
 }

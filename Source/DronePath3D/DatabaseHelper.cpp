@@ -641,6 +641,158 @@ TArray<UTargetPointInfo*> UDatabaseHelper::GetSceneTargetPoints(int32 SceneID)
     return points;
 }
 
+bool UDatabaseHelper::AddNewRoutePlan(URoutePlan* Plan)
+{
+    try {
+        // 创建数据库连接
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
+
+        // 选择数据库
+        std::unique_ptr<sql::Statement> stmt(con->createStatement());
+        stmt->execute("USE DronePath3D");
+
+        // 插入路径组（RoutePlan）数据
+        std::string insertRoutePlanQuery = "INSERT INTO RoutePlans (SceneID) VALUES (?)";
+        std::unique_ptr<sql::PreparedStatement> pstmtRoutePlan(con->prepareStatement(insertRoutePlanQuery));
+        pstmtRoutePlan->setInt(1, Plan->SceneID);  // 设置 SceneID
+        pstmtRoutePlan->executeUpdate();
+
+        // 获取新插入路径组的 PlanID
+        std::unique_ptr<sql::ResultSet> resultSet1(stmt->executeQuery("SELECT LAST_INSERT_ID() AS PlanID"));
+        if (resultSet1->next()) {
+            Plan->PlanID = resultSet1->getInt("PlanID");
+        }
+        else {
+            UE_LOG(LogTemp, Error, TEXT("Failed to retrieve PlanID for the new RoutePlan."));
+            return false;
+        }
+
+        // 插入路径（Routes）数据
+        std::string insertRouteQuery =
+            "INSERT INTO Routes (RoutePlanID, DroneID, Status) VALUES (?, ?, ?)";
+        std::unique_ptr<sql::PreparedStatement> pstmtRoute(con->prepareStatement(insertRouteQuery));
+
+        for (URoute* Route : Plan->Routes) {
+            pstmtRoute->setInt(1, Plan->PlanID);                   // 设置 RoutePlanID
+            pstmtRoute->setInt(2, Route->DroneID);                // 设置 DroneID
+            pstmtRoute->setString(3, "Planning");                 // 设置默认状态为 "Planning"
+            pstmtRoute->executeUpdate();
+
+            // 获取新插入路径的 RouteID
+            std::unique_ptr<sql::ResultSet> resultSet2(stmt->executeQuery("SELECT LAST_INSERT_ID() AS RouteID"));
+            if (resultSet2->next()) {
+                Route->RouteID = resultSet2->getInt("RouteID");
+                Route->PlanID = Plan->PlanID;  // 同步 PlanID 到每个路径
+            }
+            else {
+                UE_LOG(LogTemp, Error, TEXT("Failed to retrieve RouteID for a new Route."));
+                return false;
+            }
+        }
+
+        UE_LOG(LogTemp, Log, TEXT("Successfully added RoutePlan with PlanID: %d"), Plan->PlanID);
+        return true;
+    }
+    catch (const sql::SQLException& e) {
+        UE_LOG(LogTemp, Error, TEXT("SQL Exception: %s"), *FString(e.what()));
+    }
+    catch (const std::exception& e) {
+        UE_LOG(LogTemp, Error, TEXT("Standard Exception: %s"), *FString(e.what()));
+    }
+    catch (...) {
+        UE_LOG(LogTemp, Error, TEXT("SQL execute: Unknown Exception occurred."));
+    }
+
+    return false;
+}
+
+bool UDatabaseHelper::DeleteRoutePlan(int32 PlanID)
+{
+    try {
+        // 创建数据库连接
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
+
+        // 选择数据库
+        std::unique_ptr<sql::Statement> stmt(con->createStatement());
+        stmt->execute("USE DronePath3D");
+
+        // 删除路径组
+        std::string deleteRoutePlanQuery = "DELETE FROM RoutePlans WHERE RoutePlanID = ?";
+        std::unique_ptr<sql::PreparedStatement> pstmtDeleteRoutePlan(con->prepareStatement(deleteRoutePlanQuery));
+        pstmtDeleteRoutePlan->setInt(1, PlanID);
+        pstmtDeleteRoutePlan->executeUpdate();
+
+        return true;
+    }
+    catch (const sql::SQLException& e) {
+        UE_LOG(LogTemp, Error, TEXT("SQL Exception: %s"), *FString(e.what()));
+    }
+    catch (const std::exception& e) {
+        UE_LOG(LogTemp, Error, TEXT("Standard Exception: %s"), *FString(e.what()));
+    }
+    catch (...) {
+        UE_LOG(LogTemp, Error, TEXT("SQL execute: Unknown Exception occurred."));
+    }
+
+    return false;
+}
+
+
+TArray<URoutePlan*> UDatabaseHelper::GetAllRoutePlans()
+{
+    TArray<URoutePlan*> Plans;
+
+    try {
+        // 创建数据库连接
+        std::unique_ptr<sql::Connection> con(driver->connect(HostName, UserName, Password));
+
+        // 选择数据库
+        std::unique_ptr<sql::Statement> stmt(con->createStatement());
+        stmt->execute("USE DronePath3D");
+
+        // 查询所有路径组信息
+        std::unique_ptr<sql::ResultSet> routePlanRes(stmt->executeQuery("SELECT * FROM RoutePlans"));
+
+        while (routePlanRes->next()) {
+            // 创建一个新的 URoutePlan 对象
+            URoutePlan* RoutePlan = NewObject<URoutePlan>();
+            RoutePlan->PlanID = routePlanRes->getInt("RoutePlanID");
+            RoutePlan->SceneID = routePlanRes->getInt("SceneID");
+
+            // 查询当前路径组的所有路径
+            std::string query = "SELECT * FROM Routes WHERE RoutePlanID = ?";
+            std::unique_ptr<sql::PreparedStatement> pstmtRoutes(con->prepareStatement(query));
+            pstmtRoutes->setInt(1, RoutePlan->PlanID);
+            std::unique_ptr<sql::ResultSet> routeRes(pstmtRoutes->executeQuery());
+
+            while (routeRes->next()) {
+                // 创建一个新的 URoute 对象
+                URoute* Route = NewObject<URoute>();
+                Route->RouteID = routeRes->getInt("RouteID");
+                Route->PlanID = routeRes->getInt("RoutePlanID");
+                Route->DroneID = routeRes->getInt("DroneID");
+
+                // 添加路径到路径组
+                RoutePlan->Routes.Add(Route);
+            }
+
+            // 添加路径组到 Plans
+            Plans.Add(RoutePlan);
+        }
+    }
+    catch (const sql::SQLException& e) {
+        UE_LOG(LogTemp, Error, TEXT("SQL Exception: %s"), *FString(e.what()));
+    }
+    catch (const std::exception& e) {
+        UE_LOG(LogTemp, Error, TEXT("Standard Exception: %s"), *FString(e.what()));
+    }
+    catch (...) {
+        UE_LOG(LogTemp, Error, TEXT("SQL execute: Unknown Exception occurred."));
+    }
+
+    return Plans;
+}
+
 
 void UDatabaseHelper::Initialize()
 {
@@ -696,6 +848,19 @@ void UDatabaseHelper::Initialize()
             "CoordinateY FLOAT,"
             "CoordinateZ FLOAT,"
             "FOREIGN KEY(SceneID) REFERENCES Scenes(SceneID) ON DELETE CASCADE"
+            "); ");
+        stamt->execute("CREATE TABLE IF NOT EXISTS RoutePlans ("
+            "RoutePlanID INT AUTO_INCREMENT PRIMARY KEY,"
+            "SceneID INT,"
+            "FOREIGN KEY(SceneID) REFERENCES Scenes(SceneID) ON DELETE CASCADE"
+            "); ");
+        stamt->execute("CREATE TABLE IF NOT EXISTS Routes ("
+            "RouteID INT AUTO_INCREMENT PRIMARY KEY,"
+            "RoutePlanID INT,"
+            "DroneID INT,"
+            "Status VARCHAR(255),"
+            "FOREIGN KEY(RoutePlanID) REFERENCES RoutePlans(RoutePlanID) ON DELETE CASCADE,"
+            "FOREIGN KEY(DroneID) REFERENCES Drones(DroneID) ON DELETE SET NULL"
             "); ");
 
     }

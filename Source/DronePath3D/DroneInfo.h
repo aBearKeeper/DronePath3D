@@ -21,17 +21,17 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Drone Cluster")
 	FVector StartPosition;
 	UPROPERTY(BlueprintReadWrite, Category = "Drone Cluster")
-	float Diameter;
+	float Diameter = 1;
 	UPROPERTY(BlueprintReadWrite, Category = "Drone Cluster")
-	float Height;
+	float Height = 0.5;
 	UPROPERTY(BlueprintReadWrite, Category = "Drone Cluster")
 	float MaxHeight;
 	UPROPERTY(BlueprintReadWrite, Category = "Drone Cluster")
-	float MaxThrust;
+	float MaxThrust = 100;
 	UPROPERTY(BlueprintReadWrite, Category = "Drone Cluster")
-	float MaxSpeed;
+	float MaxSpeed = 20;
 	UPROPERTY(BlueprintReadWrite, Category = "Drone Cluster")
-	float Weight;
+	float Weight = 10;
 	UPROPERTY(BlueprintReadWrite, Category = "Drone Cluster")
 	float Endurance;
 	UPROPERTY(BlueprintReadWrite, Category = "Drone Cluster")

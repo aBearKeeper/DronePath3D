@@ -17,7 +17,6 @@ class DRONEPATH3D_API UUAStarPathPlanningAlgorithm : public UUPathPlanningAlgori
 
 private:
 	UObject* WorldContextObject;
-	int Unit_Distance;
 
 	bool HaveCloudPoints(FVector Position);
 
@@ -42,8 +41,11 @@ public:
 	UUAStarPathPlanningAlgorithm()
 	{
 		WorldContextObject = GetWorld();
-		Unit_Distance = 100;
 	}
 	TArray<FVector> ExecuteAlgorithm(FVector StartPoint, FVector TargetPoint) override;
 
+	UFUNCTION(BlueprintCallable, Category = "Planning Algorithm")
+	static UUAStarPathPlanningAlgorithm* getAStarPathPlanningAlgorithm() {
+		return NewObject<UUAStarPathPlanningAlgorithm >();
+	}
 };

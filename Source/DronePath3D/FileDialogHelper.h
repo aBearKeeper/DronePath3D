@@ -20,4 +20,10 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "File Dialog")
 	static bool RemovePointCloudFile(FString FilePath);
+
+	UFUNCTION(BlueprintCallable, Category = "File Dialog")
+	static void SaveWaypointsToFile(int32 RouteID, const TArray<FVector>& Waypoints);
+
+	UFUNCTION(BlueprintCallable, Category = "File Dialog")
+	static bool LoadWaypointsFromFile(int32 RouteID, TArray<FVector>& OutWaypoints);
 };
