@@ -1,9 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-#include "UAStarPathPlanningAlgorithm.h"
+
+
+#include "PotentialFieldAlgorithm.h"
 #include "LidarPointCloud.h"
 
 
-bool UUAStarPathPlanningAlgorithm::HaveCloudPoints(FVector Position, UObject* WorldContextObject)
+bool UPotentialFieldAlgorithm::HaveCloudPoints(FVector Position, UObject* WorldContextObject)
 {
 	TArray<FLidarPointCloudPoint> SelectedPoints;
 
@@ -27,7 +29,7 @@ bool UUAStarPathPlanningAlgorithm::HaveCloudPoints(FVector Position, UObject* Wo
 	const bool bVisibleOnly = true;
 
 	ULidarPointCloudBlueprintLibrary::GetPointsInBoxAsCopies(WorldContextObject, SelectedPoints, Position, Extent, bVisibleOnly);
-	
+
 	if (SelectedPoints.Num() > 0)
 		return true;
 
@@ -35,7 +37,7 @@ bool UUAStarPathPlanningAlgorithm::HaveCloudPoints(FVector Position, UObject* Wo
 
 }
 
-TArray<FVector> UUAStarPathPlanningAlgorithm::ExecuteAlgorithm(FVector StartPoint, FVector TargetPoint, UObject* WorldContextObject)
+TArray<FVector> UPotentialFieldAlgorithm::ExecuteAlgorithm(FVector StartPoint, FVector TargetPoint, UObject* WorldContextObject)
 {
 
 	double DRatio;
@@ -228,7 +230,7 @@ TArray<FVector> UUAStarPathPlanningAlgorithm::ExecuteAlgorithm(FVector StartPoin
 			FNode* NewNeighbor = new FNode(neighbor);
 			NewNeighbor->F_Cost = CurrentNode->F_Cost + FVector::Dist(CurrentNode->Position, neighbor);
 			NewNeighbor->G_Cost = FVector::Dist(neighbor, TargetPoint);
-			NewNeighbor->Acc_Cost = NewNeighbor->F_Cost + NewNeighbor->G_Cost;
+			NewNeighbor->Acc_Cost = NewNeighbor->G_Cost;
 			NewNeighbor->Parent = CurrentNode;
 
 			//检查邻居节点是否在未经过节点中并且代价较小
@@ -254,3 +256,4 @@ TArray<FVector> UUAStarPathPlanningAlgorithm::ExecuteAlgorithm(FVector StartPoin
 	}
 	return RoutePoints;
 }
+

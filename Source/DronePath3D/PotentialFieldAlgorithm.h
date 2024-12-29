@@ -4,17 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "UPathPlanningAlgorithm.h"
-#include "UAStarPathPlanningAlgorithm.generated.h"
+#include "PotentialFieldAlgorithm.generated.h"
 
 /**
  * 
  */
 UCLASS(Blueprintable, BlueprintType)
-class DRONEPATH3D_API UUAStarPathPlanningAlgorithm : public UUPathPlanningAlgorithm
+class DRONEPATH3D_API UPotentialFieldAlgorithm : public UUPathPlanningAlgorithm
 {
 	GENERATED_BODY()
-	
-
 private:
 	bool HaveCloudPoints(FVector Position, UObject* WorldContextObject);
 
@@ -39,7 +37,7 @@ public:
 	TArray<FVector> ExecuteAlgorithm(FVector StartPoint, FVector TargetPoint, UObject* WorldContextObject) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Planning Algorithm")
-	static UUAStarPathPlanningAlgorithm* getAStarPathPlanningAlgorithm() {
-		return NewObject<UUAStarPathPlanningAlgorithm >();
+	static UPotentialFieldAlgorithm* getPotentialFieldAlgorithm() {
+		return NewObject<UPotentialFieldAlgorithm >();
 	}
 };

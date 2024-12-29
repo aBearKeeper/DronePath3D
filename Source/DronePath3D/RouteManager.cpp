@@ -16,7 +16,7 @@ URouteManager* URouteManager::GetSingleton()
 	return Singleton;
 }
 
-void URouteManager::PlanRoutes(TArray<UDroneInfo*> Drones, TArray<UTargetPointInfo*> Points, UUPathPlanningAlgorithm* Algorithm)
+void URouteManager::PlanRoutes(TArray<UDroneInfo*> Drones, TArray<UTargetPointInfo*> Points, UUPathPlanningAlgorithm* Algorithm, UObject* WorldContextObject)
 {
 	TMap<UDroneInfo*, TArray<UTargetPointInfo*>> DroneToPoints;
 	for (UDroneInfo* Drone : Drones)
@@ -109,7 +109,7 @@ void URouteManager::PlanRoutes(TArray<UDroneInfo*> Drones, TArray<UTargetPointIn
 					ClosestDistance = Distance;
 				}
 			}
-			auto result = Algorithm->ExecuteAlgorithm(StartPoint, ClosestPoint->Position);
+			auto result = Algorithm->ExecuteAlgorithm(StartPoint, ClosestPoint->Position, WorldContextObject);
 			Route->Waypoints += result;
 			StartPoint = ClosestPoint->Position;
 			Pair.Value.Remove(ClosestPoint);

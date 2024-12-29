@@ -3,7 +3,7 @@
 
 #include "UPathPlanningAlgorithm.h"
 
-TArray<FVector> UUPathPlanningAlgorithm::ExecuteAlgorithm(FVector StartPoint, FVector TargetPoint)
+TArray<FVector> UUPathPlanningAlgorithm::ExecuteAlgorithm(FVector StartPoint, FVector TargetPoint, UObject* WorldContextObject)
 {
 	return TArray<FVector>();
 }

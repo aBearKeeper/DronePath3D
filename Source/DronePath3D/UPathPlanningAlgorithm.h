@@ -11,7 +11,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class DRONEPATH3D_API UUPathPlanningAlgorithm : public UObject
 {
 	GENERATED_BODY()
@@ -26,7 +26,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Path Planning Algorithm")
-	virtual TArray<FVector> ExecuteAlgorithm(FVector StartPoint, FVector TargetPoint);
+	virtual TArray<FVector> ExecuteAlgorithm(FVector StartPoint, FVector TargetPoint, UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintCallable, Category = "Path Planning Algorithm")
 	void SetParameter(const FString& Key, double Value);

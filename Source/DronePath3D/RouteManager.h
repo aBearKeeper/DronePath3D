@@ -22,7 +22,7 @@ public:
 	static URouteManager* GetSingleton();
 
 	UFUNCTION(BlueprintCallable, Category = "Route Manager")
-	void PlanRoutes(TArray<UDroneInfo*> Drones, TArray<UTargetPointInfo*> Points, UUPathPlanningAlgorithm* Algorithm);
+	void PlanRoutes(TArray<UDroneInfo*> Drones, TArray<UTargetPointInfo*> Points, UUPathPlanningAlgorithm* Algorithm, UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintCallable, Category = "Route Manager")
 	void SimulatePlan(URoutePlan* Plan);
